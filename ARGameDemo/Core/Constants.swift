@@ -9,4 +9,10 @@
 enum NODE {
 	static let SPAWN = "spawn"
 	static let OCCLUSION = "occlusion"
+	static let FUELCELL = "fuelCell"
+}
+
+enum WINDOW {
+	static let ONE = 0
+	static let TWO = 1
 }

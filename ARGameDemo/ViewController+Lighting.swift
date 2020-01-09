@@ -23,7 +23,7 @@ extension ViewController {
 		let ambientLightEstimate = lightEstimate.ambientIntensity
 		let ambientColourTemperature = lightEstimate.ambientColorTemperature
 
-		if ambientLightEstimate < 100 { print("Lighting Is Too Dark") }
+//		if ambientLightEstimate < 100 { print("Lighting Is Too Dark") }
 
 		ambientLight.intensity = ambientLightEstimate
 		ambientLight.temperature = ambientColourTemperature

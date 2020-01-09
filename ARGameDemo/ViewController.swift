@@ -12,7 +12,9 @@ import ARKit
 
 class ViewController: UIViewController, ARSCNViewDelegate {
     @IBOutlet var sceneView: ARSCNView!
+	let gameState = GameState()
     var gameWindowStore = GameWindowStore()
+	var gameController = GameController()
 	var fuelCellNode: SCNNode!
 
     override func viewDidLoad() {
@@ -23,8 +25,6 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         
         // Show statistics such as fps and timing information
         sceneView.showsStatistics = true
-
-		fuelCellNode = loadFuelCell()
 		configureOnClick()
     }
     
@@ -33,7 +33,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         
         // Create a session configuration
         let configuration = ARWorldTrackingConfiguration()
-		configuration.planeDetection = .horizontal //needs to be vertical, but for testing purposes
+		configuration.planeDetection = .vertical //needs to be vertical, but for testing purposes
 		configuration.isLightEstimationEnabled = true
 		configuration.detectionImages = gameWindowStore.getReferenceImages()
 
@@ -55,8 +55,8 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     // Override to create and configure nodes for anchors added to the view's session.
     func renderer(_ renderer: SCNSceneRenderer, nodeFor anchor: ARAnchor) -> SCNNode? {
         if let validImageAnchor = anchor as? ARImageAnchor {
-			if let sceneNode = gameWindowStore.gameWindows[validImageAnchor.referenceImage]{
-				return addSceneNode(sceneNode, to: validImageAnchor)
+			if let node = gameController.loadWindow(for: validImageAnchor.referenceImage) {
+				return addSceneNode(node, to: validImageAnchor)
 			}
 		}
 		return nil
@@ -69,16 +69,8 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         sceneNode.eulerAngles = SCNVector3Make(sceneNode.eulerAngles.x - (Float.pi / 2), sceneNode.eulerAngles.y, sceneNode.eulerAngles.z)
 
 		sceneNode.configureOcclusionPlanes()
-		sceneNode.insertNodeOnRandomSpawn(node: fuelCellNode)
 
 		node.addChildNode(sceneNode)
-		
-		return node
-	}
-
-	func loadFuelCell() -> SCNNode {
-		let arScene = SCNScene(named: "art.scnassets/fuelCell.scn")
-		let node = arScene!.rootNode.childNode(withName: "box", recursively: false)!
 		return node
 	}
 
@@ -91,15 +83,20 @@ class ViewController: UIViewController, ARSCNViewDelegate {
 		let tapLocation = recognizer.location(in: sceneView)
 		let hitTestResults = sceneView.hitTest(tapLocation)
 		
-		guard let node = hitTestResults.first?.node else {
+		guard let hitTestResult = hitTestResults.first(where: {$0.node.name == NODE.FUELCELL}) else {
 			// no node tapped
 			return
 		}
 
-		if node.name == "fuelCell" {
-			node.removeFromParentNode()
+		gameController.fuelCellTapped(node: hitTestResult.node)
+		hitTestResult.node.removeFromParentNode()
+		if gameController.gameState.fuelCellsRemaining == 0 {
+			label.text = "Je hebt alle energie cellen gevonden!"
 		}
 	}
+
+	@IBOutlet weak var label: UILabel!
+
 
 	let ambientLight = SCNLight()
 	func renderer(_ renderer: SCNSceneRenderer, updateAtTime time: TimeInterval) {

@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		E309867623C48AA700ACDF9B /* GameState.swift in Sources */ = {isa = PBXBuildFile; fileRef = E309867523C48AA700ACDF9B /* GameState.swift */; };
+		E309868723C5CF6F00ACDF9B /* GameController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E309868623C5CF6F00ACDF9B /* GameController.swift */; };
 		E367BF6423C0AF73001C9205 /* GameWindowStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = E367BF6323C0AF73001C9205 /* GameWindowStore.swift */; };
 		E36844EC23AA4EDA0007C203 /* SCNNode+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E36844EB23AA4EDA0007C203 /* SCNNode+Extension.swift */; };
 		E3AD972723AB793D006C7A2B /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3AD972623AB793D006C7A2B /* Constants.swift */; };
@@ -21,6 +23,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		E309867523C48AA700ACDF9B /* GameState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameState.swift; sourceTree = "<group>"; };
+		E309868623C5CF6F00ACDF9B /* GameController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameController.swift; sourceTree = "<group>"; };
 		E367BF6323C0AF73001C9205 /* GameWindowStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameWindowStore.swift; sourceTree = "<group>"; };
 		E36844EB23AA4EDA0007C203 /* SCNNode+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SCNNode+Extension.swift"; sourceTree = "<group>"; };
 		E3AD972623AB793D006C7A2B /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
@@ -81,6 +85,8 @@
 				E3B96F7323A794C60003B958 /* ViewController.swift */,
 				E3B3BC9B23C358720099236E /* ViewController+Lighting.swift */,
 				E367BF6323C0AF73001C9205 /* GameWindowStore.swift */,
+				E309868623C5CF6F00ACDF9B /* GameController.swift */,
+				E309867523C48AA700ACDF9B /* GameState.swift */,
 				E367BF6223C0AF0F001C9205 /* Core */,
 				E3B96F7523A794C60003B958 /* Main.storyboard */,
 				E3B96F7823A794C80003B958 /* Assets.xcassets */,
@@ -166,7 +172,9 @@
 				E36844EC23AA4EDA0007C203 /* SCNNode+Extension.swift in Sources */,
 				E3B96F7423A794C60003B958 /* ViewController.swift in Sources */,
 				E3B3BC9C23C358720099236E /* ViewController+Lighting.swift in Sources */,
+				E309868723C5CF6F00ACDF9B /* GameController.swift in Sources */,
 				E367BF6423C0AF73001C9205 /* GameWindowStore.swift in Sources */,
+				E309867623C48AA700ACDF9B /* GameState.swift in Sources */,
 				E3B96F7023A794C60003B958 /* AppDelegate.swift in Sources */,
 				E3B96F8423A7A12A0003B958 /* SCNScene+Extension.swift in Sources */,
 			);

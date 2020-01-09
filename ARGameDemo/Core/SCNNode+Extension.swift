@@ -45,11 +45,23 @@ extension SCNNode {
 		self.childNodes(withName: NODE.SPAWN, recursive: true)
 	}
 
+	var fuelCells: [SCNNode]? {
+		self.childNodes(withName: NODE.FUELCELL, recursive: true)
+	}
+
 	func insertNodeOnRandomSpawn(node: SCNNode){
 		guard let spawn = potentialSpawnLocations?.randomElement() else { return }
 		node.position = spawn.position
 		self.addChildNode(node)
 		deleteSpawnLocations()
+	}
+
+	func insert(node: SCNNode, on spawnNumber: Int){
+		guard let spawn = potentialSpawnLocations?[spawnNumber] else {
+			return
+		}
+		node.position = spawn.position
+		self.addChildNode(node)
 	}
 
 	func deleteSpawnLocations(){
