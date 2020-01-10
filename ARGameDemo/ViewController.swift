@@ -12,10 +12,7 @@ import ARKit
 
 class ViewController: UIViewController, ARSCNViewDelegate {
     @IBOutlet var sceneView: ARSCNView!
-	let gameState = GameState()
-    var gameWindowStore = GameWindowStore()
 	var gameController = GameController()
-	var fuelCellNode: SCNNode!
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -24,23 +21,18 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         sceneView.delegate = self
         
         // Show statistics such as fps and timing information
-        sceneView.showsStatistics = true
+        sceneView.showsStatistics = false
+
 		configureOnClick()
+		gameController.loadNewWorld = self.loadingNewWorld
+
+		loadingNewWorld()
     }
-    
-    override func viewWillAppear(_ animated: Bool) {
+
+	override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        // Create a session configuration
-        let configuration = ARWorldTrackingConfiguration()
-		configuration.planeDetection = .vertical //needs to be vertical, but for testing purposes
-		configuration.isLightEstimationEnabled = true
-		configuration.detectionImages = gameWindowStore.getReferenceImages()
-
-		configureLight()
-
-        // Run the view's session
-        sceneView.session.run(configuration)
+       createSessionConfig()
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -48,15 +40,32 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         
         // Pause the view's session
         sceneView.session.pause()
+
     }
 
+	func createSessionConfig(){
+		// Create a session configuration
+	   let configuration = ARWorldTrackingConfiguration()
+	   configuration.planeDetection = .vertical //needs to be vertical, but for testing purposes
+	   configuration.isLightEstimationEnabled = true
+	   configuration.detectionImages = gameController.gameWindowStore.getReferenceImages()
+
+	   configureLight()
+
+	   // Run the view's session
+	   sceneView.session.run(configuration, options: [.removeExistingAnchors])
+	}
     // MARK: - ARSCNViewDelegate
 
     // Override to create and configure nodes for anchors added to the view's session.
     func renderer(_ renderer: SCNSceneRenderer, nodeFor anchor: ARAnchor) -> SCNNode? {
+		print("first")
         if let validImageAnchor = anchor as? ARImageAnchor {
+			print("second")
 			if let node = gameController.loadWindow(for: validImageAnchor.referenceImage) {
+				print("third")
 				return addSceneNode(node, to: validImageAnchor)
+
 			}
 		}
 		return nil
@@ -71,6 +80,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
 		sceneNode.configureOcclusionPlanes()
 
 		node.addChildNode(sceneNode)
+
 		return node
 	}
 
@@ -91,12 +101,25 @@ class ViewController: UIViewController, ARSCNViewDelegate {
 		gameController.fuelCellTapped(node: hitTestResult.node)
 		hitTestResult.node.removeFromParentNode()
 		if gameController.gameState.fuelCellsRemaining == 0 {
-			label.text = "Je hebt alle energie cellen gevonden!"
+//			label.text = "Je hebt alle energie cellen gevonden!"
 		}
 	}
 
-	@IBOutlet weak var label: UILabel!
 
+	func loadingNewWorld(){
+		if let loadingOverlay = SKScene(fileNamed: "LoadingOverlay") {
+				sceneView.overlaySKScene = loadingOverlay
+			}
+		createSessionConfig()
+
+		sceneView.prepare(gameController.currentGameWindows.compactMap({$0.sceneNode}), completionHandler: { success in
+			print("done")
+			DispatchQueue.main.async {
+				print("unhide")
+				self.sceneView.overlaySKScene = nil
+			}
+		})
+	}
 
 	let ambientLight = SCNLight()
 	func renderer(_ renderer: SCNSceneRenderer, updateAtTime time: TimeInterval) {
@@ -121,3 +144,4 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         
     }
 }
+

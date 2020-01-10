@@ -73,4 +73,11 @@ extension SCNNode {
 			node.removeFromParentNode()
 		}
 	}
+
+	func cleanup() {
+        for child in childNodes {
+            child.cleanup()
+        }
+        geometry = nil
+    }
 }

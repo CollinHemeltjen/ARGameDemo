@@ -15,6 +15,7 @@ class GameController {
 	var gameState = GameState()
 
 	var currentGameWindows: [GameWindow]!
+	var loadNewWorld: (() -> Void)?
 
 	init(){
 		loadLevel()
@@ -22,6 +23,12 @@ class GameController {
 
 	func loadLevel(){
 		let currentLevel = gameState.currentLevel
+		if currentGameWindows != nil {
+			for gameWindow in currentGameWindows {
+				gameWindow.sceneNode.cleanup()
+				gameWindow.sceneNode.removeFromParentNode()
+			}
+		}
 		currentGameWindows = [GameWindow]()
 		currentGameWindows.append(contentsOf: gameWindowStore.gameWindows[currentLevel])
 	}
@@ -34,11 +41,21 @@ class GameController {
 		let node = window.sceneNode
 		populateSpawns(on: node, window: window.window)
 		node.deleteSpawnLocations()
+		
 		return node
 	}
 
 	func nextLevel(){
-
+		print("all cells found!")
+		if gameWindowStore.gameWindows[gameState.currentLevel].count > 0{
+			gameWindowStore.gameWindows[gameState.currentLevel] = [GameWindow]()
+		}
+		gameState.currentLevel += 1
+		gameState.determineSpawnLocatins()
+		gameState.score = 0
+		gameState.fuelCellsRemaining = 6
+		loadLevel()
+		loadNewWorld?()
 	}
 
 	func populateSpawns(on node: SCNNode, window: Int){
@@ -74,7 +91,7 @@ class GameController {
 		print("fuelCellsRemaining: \(gameState.fuelCellsRemaining)")
 
 		if gameState.fuelCellsRemaining == 0 {
-			print("all cells found!")
+			nextLevel()
 		}
 	}
 }
