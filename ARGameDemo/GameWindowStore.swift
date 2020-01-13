@@ -12,12 +12,12 @@ import SceneKit
 
 struct GameWindow {
 	let referenceImage: ARReferenceImage
-	let sceneNode: SCNNode
+	var sceneNode: SCNNode
 	let window: Int
 }
 
 struct GameWindowStore {
-	var gameWindows = [[GameWindow]()]
+	var gameWindows = [[GameWindow](),[GameWindow]()]
 
 	init() {
 		gameWindows[0].append(
@@ -27,7 +27,17 @@ struct GameWindowStore {
 		)
 		gameWindows[0].append(
 			GameWindow(referenceImage: GameWindowStore.getReferenceImage(withName: "China"),
-					   sceneNode: GameWindowStore.getSceneNode(withName: "Brazil1"),
+					   sceneNode: GameWindowStore.getSceneNode(withName: "Brazil2"),
+					   window: WINDOW.TWO)
+		)
+		gameWindows[1].append(
+			GameWindow(referenceImage: GameWindowStore.getReferenceImage(withName: "Brazil"),
+					   sceneNode: GameWindowStore.getSceneNode(withName: "China1"),
+					   window: WINDOW.ONE)
+		)
+		gameWindows[1].append(
+			GameWindow(referenceImage: GameWindowStore.getReferenceImage(withName: "China"),
+					   sceneNode: GameWindowStore.getSceneNode(withName: "China2"),
 					   window: WINDOW.TWO)
 		)
 	}
@@ -44,7 +54,7 @@ struct GameWindowStore {
 
 	func getReferenceImages() -> Set<ARReferenceImage>{
 		var set = Set<ARReferenceImage>()
-		for image in gameWindows[0].compactMap({$0.referenceImage}) {
+		for image in gameWindows[gameWindows.count - 1].compactMap({$0.referenceImage}) {
 			set.insert(image)
 		}
 		return set
