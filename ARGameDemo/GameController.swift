@@ -54,6 +54,9 @@ class GameController {
 		gameState.determineSpawnLocatins()
 		gameState.score = 0
 		gameState.fuelCellsRemaining = 6
+		guard !(gameState.currentLevel >= gameState.levels.count) else {
+			return
+		}
 		loadLevel()
 		loadNewWorld?()
 	}

@@ -110,6 +110,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
 		if let loadingOverlay = SKScene(fileNamed: "LoadingOverlay") {
 				sceneView.overlaySKScene = loadingOverlay
 			}
+		sceneView.scene.rootNode.cleanup()
 		createSessionConfig()
 
 		sceneView.prepare(gameController.currentGameWindows.compactMap({$0.sceneNode}), completionHandler: { success in
