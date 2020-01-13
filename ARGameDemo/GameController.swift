@@ -9,6 +9,7 @@
 import Foundation
 import ARKit
 import SceneKit
+import MultipeerConnectivity
 
 class GameController {
     var gameWindowStore = GameWindowStore()
@@ -17,7 +18,19 @@ class GameController {
 	var currentGameWindows: [GameWindow]!
 
 	init(){
+//        var peers = multipeerSession?.connectedPeers
 		loadLevel()
+//        do{
+//            print("ok")
+//            if peers == nil{
+//                return
+//            }else{
+//                let item = try NSKeyedArchiver.archivedData(withRootObject: gameState, requiringSecureCoding: true)
+//                multipeerSession.sendToPeers(item, reliably: true, peers: peers!)
+//            }
+//        }catch let error{
+//            print(error)
+//        }
 	}
 
 	func loadLevel(){
@@ -51,7 +64,7 @@ class GameController {
 		}
 	}
 
-	func fuelCellTapped(node: SCNNode){
+    func fuelCellTapped(node: SCNNode, peers: [MCPeerID], multipeerSession: MultipeerSession){
 		var fuelCellIndex: Int?
 		var windowIndex: Int?
 		for index in 0..<currentGameWindows.count {
@@ -65,9 +78,10 @@ class GameController {
 		guard fuelCellIndex != nil && windowIndex != nil else {
 			return
 		}
+        print("WindowIndex: \(windowIndex!)")
 		print("fuelCellIndex: \(fuelCellIndex!)")
 		gameState.occupatedSpawnLocations[windowIndex!].remove(at: fuelCellIndex!)
-
+        
 		gameState.score += 1
 		gameState.fuelCellsRemaining -= 1
 		print("score: \(gameState.score)")
@@ -76,5 +90,13 @@ class GameController {
 		if gameState.fuelCellsRemaining == 0 {
 			print("all cells found!")
 		}
+        do{
+            let encoder = JSONEncoder()
+            let item = try encoder.encode(gameState)
+            
+            multipeerSession.sendToPeers(item, reliably: true, peers: peers)
+        }catch let error{
+            print(error)
+        }
 	}
 }

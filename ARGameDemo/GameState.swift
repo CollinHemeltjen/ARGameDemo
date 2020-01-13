@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct GameState {
+class GameState: Codable {
 	var currentLevel = 0
 	var levels = ["Brazil", "China"]
 	var occupatedSpawnLocations: [[Int]]!
@@ -16,7 +16,7 @@ struct GameState {
 	var fuelCellsRemaining = 6
 
 	// each level has 2 windows, each window has 9 possible spawn locations but only 3 locations will contain a fuelCell
-	mutating func determineSpawnLocatins(){
+    func determineSpawnLocatins(){
 		occupatedSpawnLocations = [[Int](), [Int]()]
 		for window in 0..<2 {
 			for _ in 0..<3 {
@@ -29,7 +29,7 @@ struct GameState {
 		}
 	}
 
-	init(){
+    init(){
 		self.determineSpawnLocatins()
 	}
 }
