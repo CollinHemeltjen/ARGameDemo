@@ -126,14 +126,14 @@ class GameController {
 		print("fuelCellsRemaining: \(gameState.fuelCellsRemaining)")
 
 		if gameState.fuelCellsRemaining == 0 {
-            do{
-                let encoder = JSONEncoder()
-                let item = try encoder.encode(gameState)
-                print("Send game state")
-                multipeerSession.sendToPeers(item, reliably: true, peers: peers)
-            }catch let error{
-                print(error)
-            }
+//            do{
+//                let encoder = JSONEncoder()
+//                let item = try encoder.encode(gameState)
+//                print("Send game state")
+//                multipeerSession.sendToPeers(item, reliably: true, peers: peers)
+//            }catch let error{
+//                print(error)
+//            }
 			nextLevel()
 		}
         do{
@@ -157,6 +157,9 @@ class GameController {
                 if !newGameState.occupatedSpawnLocations[i].contains(spawnLocation) && gameState.occupatedSpawnLocations[i].contains(spawnLocation){
                     print("FuellCell: ", fuelCellIndex)
                     print("I: ", i)
+                    if let fuelCell = currentGameWindows[i].sceneNode.childNodes(withName: NODE.FUELCELL)?[fuelCellIndex]{
+                        fuelCell.removeFromParentNode()
+                    }
                     gameState.occupatedSpawnLocations[i].remove(at: fuelCellIndex)
                 }
             }
