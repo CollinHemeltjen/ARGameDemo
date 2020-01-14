@@ -67,11 +67,8 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     
     // Override to create and configure nodes for anchors added to the view's session.
     func renderer(_ renderer: SCNSceneRenderer, nodeFor anchor: ARAnchor) -> SCNNode? {
-        print("first")
         if let validImageAnchor = anchor as? ARImageAnchor {
-            print("second")
             if let node = gameController.loadWindow(for: validImageAnchor.referenceImage) {
-                print("third")
                 return addSceneNode(node, to: validImageAnchor)
                 
             }
@@ -106,11 +103,6 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         guard let hitTestResult = hitTestResults.first(where: {$0.node.name == NODE.FUELCELL}) else {
             // no node tapped
             return
-        }
-        
-        let command = "Tap"
-        if let commandData = command.data(using: .utf8) {
-            multipeerSession.sendToPeers(commandData, reliably: true, peers: peers)
         }
         
         gameController.fuelCellTapped(node: hitTestResult.node, peers: multipeerSession.connectedPeers, multipeerSession: multipeerSession)
@@ -167,12 +159,9 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         //                self.sessionInfoLabel.text = message
         //        }
         do {
-            print("received")
             let decoder = JSONDecoder()
-            if let collaborationData = try? decoder.decode(GameState.self, from: data) {
-                print("\(collaborationData.fuelCellsRemaining)")
-                gameController.gameState = collaborationData
-                print(gameController.gameState)
+            if let newGameState = try? decoder.decode(GameState.self, from: data) {
+                gameController.updateGameState(newGameState: newGameState)
             }
         }catch let error {
             print(error.localizedDescription)
@@ -204,6 +193,15 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         //            }
         // Provide your session ID to the new user so they can keep track of your anchors.
         sendARSessionIDTo(peers: [peer])
+//        gameController.updateGameState(newGameState: gameController.gameState)
+//        do{
+//            let encoder = JSONEncoder()
+//            let item = try encoder.encode(gameController.gameState)
+//            print("Send game state")
+//            multipeerSession.sendToPeers(item, reliably: true, peers: [peer])
+//        }catch let error{
+//            print(error)
+//        }
     }
     
     func peerLeft(_ peer: MCPeerID) {
@@ -231,6 +229,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         //        DispatchQueue.main.async {
         //            self.sessionInfoLabel.text = message
         //        }
+        
         if let commandData = command.data(using: .utf8) {
             multipeerSession.sendToPeers(commandData, reliably: true, peers: peers)
         }

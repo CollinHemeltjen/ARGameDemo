@@ -19,8 +19,8 @@ class GameController {
 	var loadNewWorld: (() -> Void)?
 
 	init(){
-//        var peers = multipeerSession?.connectedPeers
 		loadLevel()
+        
 //        do{
 //            print("ok")
 //            if peers == nil{
@@ -33,6 +33,24 @@ class GameController {
 //            print(error)
 //        }
 	}
+    
+    func updateGameState(newGameState: GameState){
+        print("Update")
+        if gameState.currentLevel != newGameState.currentLevel {
+            gameState = newGameState
+            loadLevel()
+            loadNewWorld?()
+            return
+        }else if gameState.fuelCellsRemaining != newGameState.fuelCellsRemaining{
+            print("OLD: ", gameState.fuelCellsRemaining)
+            print("NEW: ", newGameState.fuelCellsRemaining )
+            updateFuelCells(gameState: gameState, newGameState: newGameState)
+            gameState = newGameState
+            
+        }else if gameState.occupatedSpawnLocations[0] != newGameState.occupatedSpawnLocations[0] || gameState.occupatedSpawnLocations[1] != newGameState.occupatedSpawnLocations[1]{
+            gameState = newGameState
+        }
+    }
 
 	func loadLevel(){
 		let currentLevel = gameState.currentLevel
@@ -108,15 +126,40 @@ class GameController {
 		print("fuelCellsRemaining: \(gameState.fuelCellsRemaining)")
 
 		if gameState.fuelCellsRemaining == 0 {
+            do{
+                let encoder = JSONEncoder()
+                let item = try encoder.encode(gameState)
+                print("Send game state")
+                multipeerSession.sendToPeers(item, reliably: true, peers: peers)
+            }catch let error{
+                print(error)
+            }
 			nextLevel()
 		}
         do{
             let encoder = JSONEncoder()
             let item = try encoder.encode(gameState)
-            
+
             multipeerSession.sendToPeers(item, reliably: true, peers: peers)
         }catch let error{
             print(error)
         }
 	}
+    
+    func updateFuelCells(gameState: GameState, newGameState: GameState){
+        for i in 0..<gameState.occupatedSpawnLocations.count {
+//            gameState.occupatedSpawnLocations[i] = newGameState.occupatedSpawnLocations[i]
+            let array = gameState.occupatedSpawnLocations[i]
+            for fuelCellIndex in 0..<array.count{
+                let spawnLocation = array[fuelCellIndex]
+                print("NEW: ", newGameState.occupatedSpawnLocations[i])
+                print("OLD: ", gameState.occupatedSpawnLocations[i])
+                if !newGameState.occupatedSpawnLocations[i].contains(spawnLocation) && gameState.occupatedSpawnLocations[i].contains(spawnLocation){
+                    print("FuellCell: ", fuelCellIndex)
+                    print("I: ", i)
+                    gameState.occupatedSpawnLocations[i].remove(at: fuelCellIndex)
+                }
+            }
+        }
+    }
 }
