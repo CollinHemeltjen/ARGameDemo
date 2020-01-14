@@ -56,8 +56,9 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         configuration.isLightEstimationEnabled = true
         configuration.detectionImages = gameController.gameWindowStore.getReferenceImages()
         configuration.isCollaborationEnabled = true
-        
-        
+        anchorNodes = [SCNNode]()
+        sceneNodes = [SCNNode]()
+
         configureLight()
         
         // Run the view's session
@@ -75,17 +76,40 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         }
         return nil
     }
-    
+
+	func renderer(_ renderer: SCNSceneRenderer, didUpdate node: SCNNode, for anchor: ARAnchor) {
+//		DispatchQueue.main.async {
+//			if self.anchorNodes.contains(node){
+//				print("update")
+//				let index = self.anchorNodes.firstIndex(of: node)
+//				let sceneNode = self.sceneNodes[index!]
+//
+//				sceneNode.removeAllActions()
+//				node.eulerAngles = SCNVector3Make(node.eulerAngles.x - (Float.pi / 2), node.eulerAngles.y, node.eulerAngles.z)
+//				let action = SCNAction.group([SCNAction.move(to: node.position, duration: 0.5),
+//											 SCNAction.rotate(toAxisAngle: node.rotation, duration: 0.5)])
+//				sceneNode.runAction(action)
+//			}
+//		}
+	}
+
+
+
+	var anchorNodes = [SCNNode]()
+	var sceneNodes = [SCNNode]()
     func addSceneNode(_ sceneNode: SCNNode, to anchor: ARImageAnchor) -> SCNNode {
         let node = SCNNode()
-        
+
         sceneNode.position = SCNVector3Zero
-        sceneNode.eulerAngles = SCNVector3Make(sceneNode.eulerAngles.x - (Float.pi / 2), sceneNode.eulerAngles.y, sceneNode.eulerAngles.z)
-        
+
         sceneNode.configureOcclusionPlanes()
-        
-        node.addChildNode(sceneNode)
-        
+        sceneNode.transform = SCNMatrix4(anchor.transform)
+        sceneNode.eulerAngles = SCNVector3Make(sceneNode.eulerAngles.x - (Float.pi / 2), sceneNode.eulerAngles.y, sceneNode.eulerAngles.z)
+
+		sceneView.scene.rootNode.addChildNode(sceneNode)
+
+		sceneNodes.append(sceneNode)
+		anchorNodes.append(node)
         return node
     }
     
@@ -126,10 +150,26 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     }
     
     let ambientLight = SCNLight()
+	var previousUpdate = TimeInterval()
     func renderer(_ renderer: SCNSceneRenderer, updateAtTime time: TimeInterval) {
         if let lightEstimate = sceneView.session.currentFrame?.lightEstimate {
             changeLightConditions(to: lightEstimate)
         }
+		guard (time - previousUpdate) > 0.2 else { return }
+		previousUpdate = time
+		DispatchQueue.main.async {
+			for index in 0..<self.anchorNodes.count {
+				print("update \(time)")
+				let node = self.anchorNodes[index]
+				let sceneNode = self.sceneNodes[index]
+
+				sceneNode.removeAllActions()
+				node.eulerAngles = SCNVector3Make(node.eulerAngles.x - (Float.pi / 2), node.eulerAngles.y, node.eulerAngles.z)
+				let action = SCNAction.group([SCNAction.move(to: node.position, duration: 1)])
+				sceneNode.runAction(action)
+			}
+		}
+
     }
     
     func receivedData(_ data: Data, from peer: MCPeerID) {
