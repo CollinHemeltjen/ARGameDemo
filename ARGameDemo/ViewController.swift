@@ -95,8 +95,6 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     }
     
     @objc func didTap(withGestureRecognizer recognizer: UIGestureRecognizer) {
-        let peers = multipeerSession.connectedPeers
-        
         let tapLocation = recognizer.location(in: sceneView)
         let hitTestResults = sceneView.hitTest(tapLocation)
         
@@ -121,9 +119,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         createSessionConfig()
         
         sceneView.prepare(gameController.currentGameWindows.compactMap({$0.sceneNode}), completionHandler: { success in
-            print("done")
             DispatchQueue.main.async {
-                print("unhide")
                 self.sceneView.overlaySKScene = nil
             }
         })
@@ -136,84 +132,38 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         }
     }
     
-    
-    func session(_ session: ARSession, didFailWithError error: Error) {
-        // Present an error message to the user
-        
-    }
-    
-    func sessionWasInterrupted(_ session: ARSession) {
-        // Inform the user that the session has been interrupted, for example, by presenting an overlay
-        
-    }
-    
-    func sessionInterruptionEnded(_ session: ARSession) {
-        // Reset tracking and/or remove existing anchors if consistent tracking is required
-        
-    }
-    
     func receivedData(_ data: Data, from peer: MCPeerID) {
-        //        let message: String
-        //        message = String(data: data, encoding: .utf8)!
-        //            DispatchQueue.main.async {
-        //                self.sessionInfoLabel.text = message
-        //        }
-        do {
-            let decoder = JSONDecoder()
-            if let newGameState = try? decoder.decode(GameState.self, from: data) {
-                gameController.updateGameState(newGameState: newGameState)
-            }
-        }catch let error {
-            print(error.localizedDescription)
-        }
+		let decoder = JSONDecoder()
+		if let newGameState = try? decoder.decode(GameState.self, from: data) {
+			gameController.updateGameState(newGameState: newGameState)
+		}
     }
     
     func peerDiscovered(_ peer: MCPeerID) -> Bool {
         guard let multipeerSession = multipeerSession else { return false }
-        let message: String
-        
+
         if multipeerSession.connectedPeers.count > 4 {
             // Do not accept more than four users in the experience.
-            message = "A fifth peer wants to join the experience.\nThis app is limited to four users."
-            //                DispatchQueue.main.async {
-            //                    self.label.text = message
-            //                }
+            print("A fifth peer wants to join the experience.\nThis app is limited to four users.")
             return false
         } else {
             return true
         }
     }
+
     /// - Tag: PeerJoined
     func peerJoined(_ peer: MCPeerID) {
-        let message: String
-        
-        message = " A peer wants to join the experience. Hold the phones next to each other."
-        //            DispatchQueue.main.async {
-        //                self.label.text = message
-        //            }
+        print(" A peer wants to join the experience.")
+
         // Provide your session ID to the new user so they can keep track of your anchors.
         sendARSessionIDTo(peers: [peer])
-//        gameController.updateGameState(newGameState: gameController.gameState)
-//        do{
-//            let encoder = JSONEncoder()
-//            let item = try encoder.encode(gameController.gameState)
-//            print("Send game state")
-//            multipeerSession.sendToPeers(item, reliably: true, peers: [peer])
-//        }catch let error{
-//            print(error)
-//        }
     }
     
     func peerLeft(_ peer: MCPeerID) {
-        let message: String
-        
-        message = "A peer has left the shared experience"
-        //            DispatchQueue.main.async {
-        //                self.label.text = message
-        //            }
-        // Remove all ARAnchors associated with the peer that just left the experience.
+        print("A peer has left the shared experience")
+
+        // Remove peer from session list
         if peerSessionIDs[peer] != nil {
-            //            removeAllAnchorsOriginatingFromARSessionWithID(sessionID)
             peerSessionIDs.removeValue(forKey: peer)
         }
     }
@@ -226,9 +176,6 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         let peerNames = multipeerSession.connectedPeers.map({ $0.displayName }).joined(separator: ", ")
         message = "Connected with \(peerNames)."
         print(message)
-        //        DispatchQueue.main.async {
-        //            self.sessionInfoLabel.text = message
-        //        }
         
         if let commandData = command.data(using: .utf8) {
             multipeerSession.sendToPeers(commandData, reliably: true, peers: peers)

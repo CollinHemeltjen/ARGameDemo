@@ -20,30 +20,15 @@ class GameController {
 
 	init(){
 		loadLevel()
-        
-//        do{
-//            print("ok")
-//            if peers == nil{
-//                return
-//            }else{
-//                let item = try NSKeyedArchiver.archivedData(withRootObject: gameState, requiringSecureCoding: true)
-//                multipeerSession.sendToPeers(item, reliably: true, peers: peers!)
-//            }
-//        }catch let error{
-//            print(error)
-//        }
 	}
     
     func updateGameState(newGameState: GameState){
-        print("Update")
         if gameState.currentLevel != newGameState.currentLevel {
             gameState = newGameState
             loadLevel()
             loadNewWorld?()
             return
         }else if gameState.fuelCellsRemaining != newGameState.fuelCellsRemaining{
-            print("OLD: ", gameState.fuelCellsRemaining)
-            print("NEW: ", newGameState.fuelCellsRemaining )
             updateFuelCells(gameState: gameState, newGameState: newGameState)
             gameState = newGameState
             
@@ -116,8 +101,7 @@ class GameController {
 		guard fuelCellIndex != nil && windowIndex != nil else {
 			return
 		}
-        print("WindowIndex: \(windowIndex!)")
-		print("fuelCellIndex: \(fuelCellIndex!)")
+
 		gameState.occupatedSpawnLocations[windowIndex!].remove(at: fuelCellIndex!)
         
 		gameState.score += 1
@@ -126,14 +110,6 @@ class GameController {
 		print("fuelCellsRemaining: \(gameState.fuelCellsRemaining)")
 
 		if gameState.fuelCellsRemaining == 0 {
-//            do{
-//                let encoder = JSONEncoder()
-//                let item = try encoder.encode(gameState)
-//                print("Send game state")
-//                multipeerSession.sendToPeers(item, reliably: true, peers: peers)
-//            }catch let error{
-//                print(error)
-//            }
 			nextLevel()
 		}
         do{
@@ -145,18 +121,14 @@ class GameController {
             print(error)
         }
 	}
-    
+
+	// checks if a fuelcell is found by a peer, removes said cell if true
     func updateFuelCells(gameState: GameState, newGameState: GameState){
         for i in 0..<gameState.occupatedSpawnLocations.count {
-//            gameState.occupatedSpawnLocations[i] = newGameState.occupatedSpawnLocations[i]
             let array = gameState.occupatedSpawnLocations[i]
             for fuelCellIndex in 0..<array.count{
                 let spawnLocation = array[fuelCellIndex]
-                print("NEW: ", newGameState.occupatedSpawnLocations[i])
-                print("OLD: ", gameState.occupatedSpawnLocations[i])
                 if !newGameState.occupatedSpawnLocations[i].contains(spawnLocation) && gameState.occupatedSpawnLocations[i].contains(spawnLocation){
-                    print("FuellCell: ", fuelCellIndex)
-                    print("I: ", i)
                     if let fuelCell = currentGameWindows[i].sceneNode.childNodes(withName: NODE.FUELCELL)?[fuelCellIndex]{
                         fuelCell.removeFromParentNode()
                     }
