@@ -129,8 +129,8 @@ class ViewController: UIViewController, ARSCNViewDelegate {
 
 	func endGame(){
 		if let endOverlay = SKScene(fileNamed: "EndGame") {
-			   sceneView.overlaySKScene = endOverlay
-		   }
+		   sceneView.overlaySKScene = endOverlay
+	   }
 	}
     
     let ambientLight = SCNLight()

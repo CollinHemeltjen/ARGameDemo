@@ -27,6 +27,10 @@ class GameController {
 		print("update gamestate")
         if gameState.currentLevel != newGameState.currentLevel {
             gameState = newGameState
+			if gameState.currentLevel >= gameState.levels.count {
+				endGame?()
+				return
+			}
             loadLevel()
             loadNewWorld?()
             return
