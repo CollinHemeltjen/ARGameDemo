@@ -28,6 +28,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         
         configureOnClick()
         gameController.loadNewWorld = self.loadingNewWorld
+		gameController.endGame = self.endGame
         
         loadingNewWorld()
     }
@@ -110,7 +111,6 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         }
     }
     
-    
     func loadingNewWorld(){
         if let loadingOverlay = SKScene(fileNamed: "LoadingOverlay") {
             sceneView.overlaySKScene = loadingOverlay
@@ -120,10 +120,18 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         
         sceneView.prepare(gameController.currentGameWindows.compactMap({$0.sceneNode}), completionHandler: { success in
             DispatchQueue.main.async {
-                self.sceneView.overlaySKScene = nil
+				let hud = Hud(size: self.sceneView.frame.size)
+				hud.gameController = self.gameController
+				self.sceneView.overlaySKScene = hud
             }
         })
     }
+
+	func endGame(){
+		if let endOverlay = SKScene(fileNamed: "EndGame") {
+			   sceneView.overlaySKScene = endOverlay
+		   }
+	}
     
     let ambientLight = SCNLight()
     func renderer(_ renderer: SCNSceneRenderer, updateAtTime time: TimeInterval) {
@@ -157,6 +165,15 @@ class ViewController: UIViewController, ARSCNViewDelegate {
 
         // Provide your session ID to the new user so they can keep track of your anchors.
         sendARSessionIDTo(peers: [peer])
+
+		do{
+            let encoder = JSONEncoder()
+            let item = try encoder.encode(gameController.gameState)
+
+            multipeerSession.sendToPeers(item, reliably: true, peers: [peer])
+        }catch let error{
+            print(error)
+        }
     }
     
     func peerLeft(_ peer: MCPeerID) {

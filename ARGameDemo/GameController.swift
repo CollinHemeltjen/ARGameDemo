@@ -17,12 +17,14 @@ class GameController {
 
 	var currentGameWindows: [GameWindow]!
 	var loadNewWorld: (() -> Void)?
+	var endGame: (() -> Void)?
 
 	init(){
 		loadLevel()
 	}
     
     func updateGameState(newGameState: GameState){
+		print("update gamestate")
         if gameState.currentLevel != newGameState.currentLevel {
             gameState = newGameState
             loadLevel()
@@ -70,7 +72,8 @@ class GameController {
 		gameState.determineSpawnLocatins()
 		gameState.score = 0
 		gameState.fuelCellsRemaining = 6
-		guard !(gameState.currentLevel >= gameState.levels.count) else {
+		if gameState.currentLevel >= gameState.levels.count {
+			endGame?()
 			return
 		}
 		loadLevel()
