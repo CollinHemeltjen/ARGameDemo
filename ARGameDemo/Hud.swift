@@ -44,7 +44,7 @@ class Hud: SKScene {
 		self.addChild(scoreLabel)
 
 		fuelTextLabel.position = CGPoint(x: frameW - 5, y: frameH - 50)
-		fuelTextLabel.text = "Energie cellen"
+		fuelTextLabel.text = "Brandstofcellen"
 		fuelTextLabel.horizontalAlignmentMode = .right
 		fuelTextLabel.fontSize = 30
 
